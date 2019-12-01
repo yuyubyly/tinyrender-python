@@ -60,11 +60,13 @@ class TGAColor(object):
             for i,bgra in enumerate(args[0]):
                 self.bgra[i] = bgra
             self.bytespp = args[1]
-        else:
+        elif len(args) in (3,4):
             self.bgra = [0, 0, 0, 255]
-            for i, bgra in enumerate(args):
-                self.bgra[i] = bgra
+            for i in xrange(3):
+                self.bgra[2-i] = args[i]
             self.bytespp = 4
+        else:
+            raise ValueError
 
 class TGAImage(object):
     GRAYSCALE = 1
@@ -77,6 +79,12 @@ class TGAImage(object):
         self.bytespp = bpp
         nbytes = w * h * bpp
         self.data = [0 for i in xrange(nbytes)]
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
 
     def get_serialised_data(self, start, size):
         data = ""
@@ -197,6 +205,8 @@ class TGAImage(object):
             return False
 
         for i in xrange(self.bytespp):
+            # data must be flaot
+            assert(isinstance(c.bgra[i], float))
             self.data[(x + y * self.width) * self.bytespp+i] = c.bgra[i]
         return True
 
